@@ -1,0 +1,46 @@
+global:
+  resolve_timeout: 5m
+  http_config: {}
+  smtp_hello: localhost
+  smtp_require_tls: true
+  pagerduty_url: https://events.pagerduty.com/v2/enqueue
+  hipchat_api_url: https://api.hipchat.com/
+  opsgenie_api_url: https://api.opsgenie.com/
+  wechat_api_url: https://qyapi.weixin.qq.com/cgi-bin/
+  victorops_api_url: https://alert.victorops.com/integrations/generic/20131114/alert/
+templates: 
+- '/etc/prometheus/alertmanager_templates/*.tmpl'
+
+route:
+  receiver: slack
+  group_by:
+  - alertname
+  - cluster
+  - service
+  routes:
+  - receiver: slack
+    match_re:
+      service: ^(?:warning)$
+  group_wait: 30s
+  group_interval: 1m
+  repeat_interval: 1s
+inhibit_rules:
+- source_match:
+    severity: critical
+  target_match:
+    severity: warning
+  equal:
+  - alertname
+  - cluster
+  - service
+
+inhibit_rules:
+- source_match:
+    severity: 'critical'
+  target_match:
+    severity: 'warning'
+  equal: ['alertname', 'cluster', 'service']
+
+
+receivers:
+

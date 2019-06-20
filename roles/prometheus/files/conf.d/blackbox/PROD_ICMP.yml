@@ -1,0 +1,5 @@
+- targets:
+    - 8.8.8.8
+  labels:
+    env: PROD
+    team: MIS

@@ -1,0 +1,2 @@
+[prometheus_server]
+10.28.109.78 ansible_python_interpreter=/usr/bin/python3

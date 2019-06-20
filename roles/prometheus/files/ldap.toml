@@ -1,0 +1,29 @@
+[[servers]]
+host = "****.****"
+port = 3268
+use_ssl = true
+start_tls = true
+ssl_skip_verify = true
+
+bind_dn = "grafana@****.****"
+bind_password = '****@123'
+search_filter = "(sAMAccountName=%s)"
+search_base_dns = ["OU=****,OU=AllUsers,DC=****,DC=****"]
+group_search_base_dns = ["OU=AllUsers,DC=****,DC=****"]
+
+[servers.attributes]
+name = "givenName"
+surname = "sn"
+username = "cn"
+member_of = "memberOf"
+email =  "email"
+
+
+[[servers.group_mappings]]
+group_dn = "CN=*GP_IT_Team,OU=AllUsers,DC=****,DC=****"
+org_role = "Admin"
+grafana_admin = true
+
+[[servers.group_mappings]]
+group_dn = "CN=*GP_NOC_Team,OU=AllUsers,DC=****,DC=****"
+org_role = "Viewer"

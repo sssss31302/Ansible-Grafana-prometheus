@@ -1,0 +1,87 @@
+####################################################
+##  Global Config                                ###
+####################################################
+global:
+  scrape_interval:     30s # Set the scrape interval to every 15 seconds. Default is every 1 minute.
+  evaluation_interval: 30s # Evaluate rules every 15 seconds. The default is every 1 minute.
+  # scrape_timeout is set to the global default (10s).
+
+# Attach these labels to any time series or alerts when communicating with
+# external systems (federation, remote storage, Alertmanager).
+  external_labels:
+      monitor: 'Prometheus_Monitor'
+
+# Load rules once and periodically evaluate them according to the global 'evaluation_interval'.
+rule_files:
+  #- "/etc/prometheus/conf.d/alert_rules/*.yml"
+
+
+####################################################
+##  BlackBox Monitor, static & service discovery ###
+####################################################
+scrape_configs:
+  - job_name: 'probe_icmp_JP'
+    metrics_path: /probe
+    params:
+      module: [icmp]
+    file_sd_configs:
+      - files:
+        - conf.d/blackbox/*_ICMP.yml
+        refresh_interval: 5m
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: 127.0.0.1:9115
+
+  - job_name: 'probe_http_JP'
+    metrics_path: /probe
+    params:
+      module: [http_2xx]
+    file_sd_configs:
+      - files:
+        - conf.d/blackbox/*_HTTP.yml
+        refresh_interval: 5m
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: 127.0.0.1:9115
+
+
+####################################################
+###  Node_Exporter with Service Discovery        ###
+####################################################
+  - job_name: 'Ant-Man'
+    file_sd_configs:
+      - files:
+        - conf.d/node-exporter/*.yml
+        refresh_interval: 5m
+    relabel_configs:
+    - source_labels: ["job"]
+      regex: '(.*)'
+      replacement: $1
+      action: replace
+      target_label: "project"
+
+####################################################
+###  Push Gateway configuration                  ###
+####################################################
+#    static_configs:
+#      - targets: ['pushgateway:9091']
+
+
+####################################################
+##  Alertmanager configuration                   ###
+####################################################
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          - alertmanager:9093
+
+
